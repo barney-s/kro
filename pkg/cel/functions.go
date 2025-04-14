@@ -25,12 +25,10 @@ import (
 
 const (
 	// alphanumericChars contains all possible characters for the random string
-	// Only lowercase letters and numbers are used
 	alphanumericChars = "0123456789abcdefghijklmnopqrstuvwxyz"
 )
 
 // GenerateRandomString creates a random string of lowercase alphanumeric characters with the specified length.
-// The function uses crypto/rand for cryptographically secure random number generation.
 func GenerateRandomString(arg ref.Val) ref.Val {
 	length, ok := arg.(types.Int)
 	if !ok {

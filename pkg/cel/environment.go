@@ -49,32 +49,37 @@ func WithCustomDeclarations(declarations []cel.EnvOption) EnvOption {
 
 // DefaultEnvironment returns the default CEL environment.
 func DefaultEnvironment(options ...EnvOption) (*cel.Env, error) {
+	// Create declarations slice with default stdlibs only
+	declarations := []cel.EnvOption{
+		ext.Lists(),
+		ext.Strings(),
+	}
+
+	// Initialize options
 	opts := &envOptions{}
+
+	// Add default options
+	defaultOptions := []EnvOption{
+		WithRandomStringFunction(), // This is the ONLY place we register the function
+	}
+
+	// Apply default options first
+	for _, opt := range defaultOptions {
+		opt(opts)
+	}
+
+	// Apply user-provided options
 	for _, opt := range options {
 		opt(opts)
 	}
 
-	// Create declarations slice with default stdlibs
-	declarations := []cel.EnvOption{
-		// default stdlibs
-		ext.Lists(),
-		ext.Strings(),
-		// Add random string function
-		cel.Function("randomString",
-			cel.Overload("randomString_int_string",
-				[]*cel.Type{cel.IntType},
-				cel.StringType,
-				cel.UnaryBinding(GenerateRandomString),
-			),
-		),
-	}
+	// Add custom declarations to the environment
+	declarations = append(declarations, opts.customDeclarations...)
 
+	// Add resource ID declarations
 	for _, name := range opts.resourceIDs {
 		declarations = append(declarations, cel.Variable(name, cel.AnyType))
 	}
-
-	// Add any custom declarations
-	declarations = append(declarations, opts.customDeclarations...)
 
 	return cel.NewEnv(declarations...)
 }
