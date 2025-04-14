@@ -54,14 +54,27 @@ func DefaultEnvironment(options ...EnvOption) (*cel.Env, error) {
 		opt(opts)
 	}
 
+	// Create declarations slice with default stdlibs
 	declarations := []cel.EnvOption{
 		// default stdlibs
 		ext.Lists(),
 		ext.Strings(),
+		// Add random string function
+		cel.Function("randomString",
+			cel.Overload("randomString_int_string",
+				[]*cel.Type{cel.IntType},
+				cel.StringType,
+				cel.UnaryBinding(GenerateRandomString),
+			),
+		),
 	}
 
 	for _, name := range opts.resourceIDs {
 		declarations = append(declarations, cel.Variable(name, cel.AnyType))
 	}
+
+	// Add any custom declarations
+	declarations = append(declarations, opts.customDeclarations...)
+
 	return cel.NewEnv(declarations...)
 }
