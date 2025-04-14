@@ -60,7 +60,7 @@ func DefaultEnvironment(options ...EnvOption) (*cel.Env, error) {
 
 	// Add default options
 	defaultOptions := []EnvOption{
-		WithRandomStringFunction(), // This is the ONLY place we register the function
+		WithRandomStringFunction(),
 	}
 
 	// Apply default options first
