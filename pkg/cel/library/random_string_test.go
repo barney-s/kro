@@ -129,7 +129,7 @@ func TestRandomStringErrors(t *testing.T) {
 			if err == nil {
 				t.Error("Expected error, got none")
 			}
-			if errVal, ok := result.(types.Error); !ok || errVal.Value().(string) != tc.wantErr {
+			if errVal, ok := result.(*types.Err); !ok || errVal.Error() != tc.wantErr {
 				t.Errorf("Expected error %q, got %v", tc.wantErr, result)
 			}
 		})
