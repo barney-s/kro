@@ -31,10 +31,17 @@ func main() {
 	}
 }
 
+type CommandOptions struct {
+	KubeConfigPath string
+	Context        string
+	Verbose        bool
+}
+
 func NewRootCommand() *cobra.Command {
-	var kubeConfigPath string
+	opts := &CommandOptions{}
+
 	if home := homedir.HomeDir(); home != "" {
-		kubeConfigPath = filepath.Join(home, ".kube", "config")
+		opts.KubeConfigPath = filepath.Join(home, ".kube", "config")
 	}
 
 	cmd := &cobra.Command{
@@ -47,9 +54,9 @@ ResourceGraphDefinitions (RGDs) and their instances in Kubernetes clusters.`,
 	}
 
 	// Global flags
-	cmd.PersistentFlags().String("kubeconfig", kubeConfigPath, "Path to kubeconfig file")
-	cmd.PersistentFlags().String("context", "", "Kubernetes context to use")
-	cmd.PersistentFlags().Bool("verbose", false, "Enable verbose logging")
+	cmd.PersistentFlags().StringVar(&opts.KubeConfigPath, "kubeconfig", opts.KubeConfigPath, "Path to kubeconfig file")
+	cmd.PersistentFlags().StringVar(&opts.Context, "context", "", "Kubernetes context to use")
+	cmd.PersistentFlags().BoolVar(&opts.Verbose, "verbose", false, "Enable verbose logging")
 
 	// TODO: Command groups
 	commands.AddValidateCommands(cmd)
