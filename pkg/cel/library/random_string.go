@@ -33,7 +33,7 @@ import (
 //	randomString(10, schema.spec.name)
 //
 // This will generate a random string of length 10 using the seed schema.spec.name.
-// The same seed will always produce the same random string.
+// The same length and seed will always produce the same random string.
 
 const (
 	// alphanumericChars contains all possible characters for the random string
