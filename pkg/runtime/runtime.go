@@ -539,8 +539,6 @@ func (rt *ResourceGraphDefinitionRuntime) WantToCreateResource(resourceID string
 		return true, nil
 	}
 
-	// we should not expect errors here since we already compiled it
-	// in the dryRun
 	env, err := krocel.DefaultEnvironment(krocel.WithResourceIDs([]string{"schema"}))
 	if err != nil {
 		return false, nil
@@ -551,12 +549,10 @@ func (rt *ResourceGraphDefinitionRuntime) WantToCreateResource(resourceID string
 	}
 
 	for _, includeWhenExpression := range includeWhenExpressions {
-		// We should not expect an error here as well since we checked during dry-run
 		value, err := evaluateExpression(env, context, includeWhenExpression)
 		if err != nil {
 			return false, err
 		}
-		// returning a reason here to point out which expression is not ready yet
 		if !value.(bool) {
 			return false, fmt.Errorf("skipping resource creation due to condition %s", includeWhenExpression)
 		}

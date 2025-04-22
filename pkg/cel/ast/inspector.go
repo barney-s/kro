@@ -98,6 +98,24 @@ type Inspector struct {
 
 	// Track active loop variables
 	loopVars map[string]struct{}
+
+	// knownFuncs is a set of known function names that can be called in expressions
+	knownFuncs []string
+}
+
+// defaultKnownFunctions contains the list of all CEL functions that are supported
+var defaultKnownFunctions = []string{
+	"randomString",
+	// Add any other known functions here
+}
+
+// convertToSet converts a string slice to a set (map[string]struct{})
+func convertToSet(slice []string) map[string]struct{} {
+	set := make(map[string]struct{})
+	for _, s := range slice {
+		set[s] = struct{}{}
+	}
+	return set
 }
 
 // DefaultInspector creates a new Inspector instance with the given resources and functions.
@@ -125,31 +143,22 @@ func DefaultInspector(resources []string, functions []string) (*Inspector, error
 	}
 
 	return &Inspector{
-		env:       env,
-		resources: resourceMap,
-		functions: functionMap,
-		loopVars:  make(map[string]struct{}),
+		env:        env,
+		resources:  resourceMap,
+		functions:  functionMap,
+		loopVars:   make(map[string]struct{}),
+		knownFuncs: defaultKnownFunctions,
 	}, nil
 }
 
-// NewInspectorWithEnv creates a new Inspector instance with the given resources and functions
-// using the provided CEL environment.
-func NewInspectorWithEnv(env *cel.Env, resources []string, functions []string) *Inspector {
-	resourceMap := make(map[string]struct{})
-	for _, resource := range resources {
-		resourceMap[resource] = struct{}{}
-	}
-
-	functionMap := make(map[string]struct{})
-	for _, function := range functions {
-		functionMap[function] = struct{}{}
-	}
-
+// NewInspectorWithEnv creates a new Inspector with the given CEL environment and resource names.
+// The inspector is used to analyze CEL expressions and track dependencies.
+func NewInspectorWithEnv(env *cel.Env, resources []string) *Inspector {
 	return &Inspector{
-		env:       env,
-		resources: resourceMap,
-		functions: functionMap,
-		loopVars:  make(map[string]struct{}),
+		env:        env,
+		resources:  convertToSet(resources),
+		knownFuncs: defaultKnownFunctions,
+		loopVars:   make(map[string]struct{}),
 	}
 }
 

@@ -84,7 +84,6 @@ func generateDeterministicString(length ref.Val, seed ref.Val) ref.Val {
 			newHash := sha256.Sum256(append(hash[:], result[:i]...))
 			hash = newHash
 			start = 0
-			end = 4
 		}
 		// Convert 4 bytes to a uint32 and use it to select a character
 		idx := uint32(hash[start])<<24 | uint32(hash[start+1])<<16 | uint32(hash[start+2])<<8 | uint32(hash[start+3])
