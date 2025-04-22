@@ -100,8 +100,8 @@ type Inspector struct {
 	loopVars map[string]struct{}
 }
 
-// defaultKnownFunctions contains the list of all CEL functions that are supported
-var defaultKnownFunctions = []string{
+// knownFunctions contains the list of all CEL functions that are supported
+var knownFunctions = []string{
 	"randomString",
 }
 
@@ -145,7 +145,7 @@ func NewInspectorWithEnv(env *cel.Env, resources []string) *Inspector {
 	}
 
 	functionMap := make(map[string]struct{})
-	for _, function := range defaultKnownFunctions {
+	for _, function := range knownFunctions {
 		functionMap[function] = struct{}{}
 	}
 
