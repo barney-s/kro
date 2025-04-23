@@ -21,26 +21,12 @@ import (
 	"github.com/google/cel-go/common/types/ref"
 )
 
-// RandomString returns a CEL function that generates deterministic random strings
-// based on a seed.
-//
-// The function takes two arguments:
-// - length: an integer specifying the length of the random string to generate
-// - seed: a string used as the seed for the random string generation
-//
-// Example usage:
-//
-//	randomString(10, schema.spec.name)
-//
-// This will generate a random string of length 10 using the seed schema.spec.name.
-// The same length and seed will always produce the same random string.
-
 const (
 	// alphanumericChars contains all possible characters for the random string
 	alphanumericChars = "0123456789abcdefghijklmnopqrstuvwxyz"
 )
 
-// Random returns a CEL library that provides random generation functions
+// Random returns a CEL library that provides functions to generate random text
 func Random() cel.EnvOption {
 	return cel.Lib(&randomLibrary{})
 }
@@ -67,7 +53,19 @@ func (l *randomLibrary) ProgramOptions() []cel.ProgramOption {
 	return nil
 }
 
-// generateDeterministicString creates a deterministic random string based on a seed
+// generateDeterministicString returns a CEL function that generates deterministic random strings
+// based on a seed.
+//
+// The function takes two arguments:
+// - length: an integer specifying the length of the random string to generate
+// - seed: a string used as the seed for the random string generation
+//
+// Example usage:
+//
+//	randomString(10, schema.spec.name)
+//
+// This will generate a random string of length 10 using the seed schema.spec.name.
+// The same length and seed will always produce the same random string.
 func generateDeterministicString(length ref.Val, seed ref.Val) ref.Val {
 	// Validate length
 	lengthInt, ok := length.(types.Int)
