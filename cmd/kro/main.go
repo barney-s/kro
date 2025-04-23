@@ -38,20 +38,21 @@ type CommandOptions struct {
 	Verbose        bool
 }
 
+var cmd = &cobra.Command{
+	Use:   "kro",
+	Short: "kro- Kube Resource Orchestrator CLI",
+	Long: `kro CLI helps developers and administrators manage 
+ResourceGraphDefinitions (RGDs) and their instances in Kubernetes clusters.`,
+	SilenceErrors: true,
+	SilenceUsage:  true,
+}
+
+var opts = &CommandOptions{}
+
 func NewRootCommand() *cobra.Command {
-	opts := &CommandOptions{}
 
 	if home := homedir.HomeDir(); home != "" {
 		opts.KubeConfigPath = filepath.Join(home, ".kube", "config")
-	}
-
-	cmd := &cobra.Command{
-		Use:   "kro",
-		Short: "kro- Kube Resource Orchestrator CLI",
-		Long: `kro CLI helps developers and administrators manage 
-ResourceGraphDefinitions (RGDs) and their instances in Kubernetes clusters.`,
-		SilenceErrors: true,
-		SilenceUsage:  true,
 	}
 
 	// Global flags
