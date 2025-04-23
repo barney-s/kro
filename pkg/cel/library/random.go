@@ -40,15 +40,31 @@ const (
 	alphanumericChars = "0123456789abcdefghijklmnopqrstuvwxyz"
 )
 
-// RandomString returns a CEL function that generates deterministic random strings
-func RandomString() cel.EnvOption {
-	return cel.Function("randomString",
-		cel.Overload("randomString_int_string",
-			[]*cel.Type{cel.IntType, cel.StringType},
-			cel.StringType,
-			cel.BinaryBinding(generateDeterministicString),
+// Random returns a CEL library that provides random generation functions
+func Random() cel.EnvOption {
+	return cel.Lib(&randomLibrary{})
+}
+
+type randomLibrary struct{}
+
+func (l *randomLibrary) LibraryName() string {
+	return "random"
+}
+
+func (l *randomLibrary) CompileOptions() []cel.EnvOption {
+	return []cel.EnvOption{
+		cel.Function("random.string",
+			cel.Overload("random.string_int_string",
+				[]*cel.Type{cel.IntType, cel.StringType},
+				cel.StringType,
+				cel.BinaryBinding(generateDeterministicString),
+			),
 		),
-	)
+	}
+}
+
+func (l *randomLibrary) ProgramOptions() []cel.ProgramOption {
+	return nil
 }
 
 // generateDeterministicString creates a deterministic random string based on a seed
@@ -56,17 +72,17 @@ func generateDeterministicString(length ref.Val, seed ref.Val) ref.Val {
 	// Validate length
 	lengthInt, ok := length.(types.Int)
 	if !ok {
-		return types.NewErr("randomString length must be an integer")
+		return types.NewErr("random.string length must be an integer")
 	}
 	n := int(lengthInt.Value().(int64))
 	if n <= 0 {
-		return types.NewErr("randomString length must be positive")
+		return types.NewErr("random.string length must be positive")
 	}
 
 	// Validate seed
 	seedStr, ok := seed.(types.String)
 	if !ok {
-		return types.NewErr("randomString seed must be a string")
+		return types.NewErr("random.string seed must be a string")
 	}
 
 	// Generate hash from seed
