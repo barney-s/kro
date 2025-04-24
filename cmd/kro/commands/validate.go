@@ -34,7 +34,7 @@ var validateRGDCmd = &cobra.Command{
 	RunE: func(cmd *cobra.Command, args []string) error {
 		// TODO(DhairyaMajmudar): Implement the logic to validate the ResourceGraphDefinition file
 
-		fmt.Println("Validation successful! The ResourceGraphDefinition is valid.")
+		fmt.Println("Validation not implemented yet")
 		return nil
 	},
 }

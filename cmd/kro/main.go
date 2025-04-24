@@ -42,7 +42,7 @@ var cmd = &cobra.Command{
 	Use:   "kro",
 	Short: "kro- Kube Resource Orchestrator CLI",
 	Long: `kro CLI helps developers and administrators manage 
-ResourceGraphDefinitions (RGDs) and their instances in Kubernetes clusters.`,
+ResourceGraphDefinitions (RGDs) and their instances in Kubernetes cluster.`,
 	SilenceErrors: true,
 	SilenceUsage:  true,
 }
