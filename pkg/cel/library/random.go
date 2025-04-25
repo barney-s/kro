@@ -39,8 +39,8 @@ func (l *randomLibrary) LibraryName() string {
 
 func (l *randomLibrary) CompileOptions() []cel.EnvOption {
 	return []cel.EnvOption{
-		cel.Function("random.string",
-			cel.Overload("random.string_int_string",
+		cel.Function("random.seededString",
+			cel.Overload("random.seededString_int_string",
 				[]*cel.Type{cel.IntType, cel.StringType},
 				cel.StringType,
 				cel.BinaryBinding(generateDeterministicString),
@@ -62,11 +62,26 @@ func (l *randomLibrary) ProgramOptions() []cel.ProgramOption {
 //
 // Example usage:
 //
-//	randomString(10, schema.spec.name)
+//	random.string(10, schema.spec.name)
 //
 // This will generate a random string of length 10 using the seed schema.spec.name.
 // The same length and seed will always produce the same random string.
 func generateDeterministicString(length ref.Val, seed ref.Val) ref.Val {
+	// Validate length is an integer
+	if length.Type() != types.IntType {
+		return types.NewErr("random.seededString length must be an integer")
+	}
+
+	// Validate length is positive
+	if length.(types.Int) <= 0 {
+		return types.NewErr("random.seededString length must be positive")
+	}
+
+	// Validate seed is a string
+	if seed.Type() != types.StringType {
+		return types.NewErr("random.seededString seed must be a string")
+	}
+
 	// Validate length
 	lengthInt, ok := length.(types.Int)
 	if !ok {

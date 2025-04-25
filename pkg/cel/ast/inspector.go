@@ -102,7 +102,7 @@ type Inspector struct {
 
 // knownFunctions contains the list of all CEL functions that are supported
 var knownFunctions = []string{
-	"random.string",
+	"random.seededString",
 }
 
 // DefaultInspector creates a new Inspector instance with the given resources and functions.
@@ -214,7 +214,7 @@ func (a *Inspector) inspectCall(call *exprpb.Expr_Call, currentPath string) Expr
 		inspection.UnknownFunctions = append(inspection.UnknownFunctions, argInspection.UnknownFunctions...)
 	}
 
-	// Handle namespaced function calls (e.g., random.string)
+	// Handle namespaced function calls (e.g., random.seededString)
 	if target := call.Target; target != nil {
 		if ident, ok := target.ExprKind.(*exprpb.Expr_IdentExpr); ok {
 			fullName := ident.IdentExpr.Name + "." + call.Function
@@ -559,7 +559,7 @@ func isInternalFunction(name string) bool {
 		"exists_one": true,
 
 		// Custom Functions
-		"random.string": true,
+		"random.seededString": true,
 	}
 	return internalFunctions[name]
 }

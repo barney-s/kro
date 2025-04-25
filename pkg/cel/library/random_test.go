@@ -41,7 +41,7 @@ func TestRandomString(t *testing.T) {
 	}{
 		{
 			name:   "generate 10-character string",
-			expr:   "random.string(10, 'test-seed')",
+			expr:   "random.seededString(10, 'test-seed')",
 			length: 10,
 			seed:   "test-seed",
 			validate: func(t *testing.T, result string) {
@@ -53,7 +53,7 @@ func TestRandomString(t *testing.T) {
 		},
 		{
 			name:   "generate 20-character string",
-			expr:   "random.string(20, 'test-seed')",
+			expr:   "random.seededString(20, 'test-seed')",
 			length: 20,
 			seed:   "test-seed",
 			validate: func(t *testing.T, result string) {
@@ -65,30 +65,30 @@ func TestRandomString(t *testing.T) {
 		},
 		{
 			name:    "negative length",
-			expr:    "random.string(-1, 'test-seed')",
+			expr:    "random.seededString(-1, 'test-seed')",
 			length:  -1,
 			seed:    "test-seed",
 			wantErr: true,
-			errMsg:  "random.string length must be positive",
+			errMsg:  "random.seededString length must be positive",
 		},
 		{
 			name:    "zero length",
-			expr:    "random.string(0, 'test-seed')",
+			expr:    "random.seededString(0, 'test-seed')",
 			length:  0,
 			seed:    "test-seed",
 			wantErr: true,
-			errMsg:  "random.string length must be positive",
+			errMsg:  "random.seededString length must be positive",
 		},
 		{
 			name:    "string length",
-			expr:    "random.string('10', 'test-seed')",
+			expr:    "random.seededString('10', 'test-seed')",
 			length:  10,
 			seed:    "test-seed",
 			wantErr: true,
 		},
 		{
 			name:    "numeric seed",
-			expr:    "random.string(10, 123)",
+			expr:    "random.seededString(10, 123)",
 			length:  10,
 			seed:    "test-seed",
 			wantErr: true,
@@ -128,7 +128,7 @@ func TestRandomString(t *testing.T) {
 
 			// Test different seeds produce different strings
 			if tt.seed != "" {
-				ast2, _ := env.Compile(fmt.Sprintf("random.string(%d, 'different-seed')", tt.length))
+				ast2, _ := env.Compile(fmt.Sprintf("random.seededString(%d, 'different-seed')", tt.length))
 				program2, _ := env.Program(ast2)
 				out3, _, _ := program2.Eval(map[string]interface{}{})
 				result3 := out3.Value().(string)
@@ -149,17 +149,17 @@ func TestRandomStringErrors(t *testing.T) {
 	}{
 		{
 			name:    "negative length",
-			expr:    "random.string(-1, 'test-seed')",
-			wantErr: "random.string length must be positive",
+			expr:    "random.seededString(-1, 'test-seed')",
+			wantErr: "random.seededString length must be positive",
 		},
 		{
 			name:    "zero length",
-			expr:    "random.string(0, 'test-seed')",
-			wantErr: "random.string length must be positive",
+			expr:    "random.seededString(0, 'test-seed')",
+			wantErr: "random.seededString length must be positive",
 		},
 		{
 			name:    "missing seed argument",
-			expr:    "random.string(10)",
+			expr:    "random.seededString(10)",
 			wantErr: "found no matching overload",
 		},
 	}
