@@ -27,6 +27,22 @@ const (
 )
 
 // Random returns a CEL library that provides functions to generate random text
+//
+// Library functions:
+//
+// random.seededString() returns a CEL function that generates deterministic random
+// strings based on a seed.
+//
+// The function takes two arguments:
+// - length: an integer specifying the length of the random string to generate
+// - seed: a string used as the seed for the random string generation
+//
+// Example usage:
+//
+//	random.seededString(10, schema.metadata.uid)
+//
+// This will generate a random string of length 10 using the seed schema.metadata.uid.
+// The same length and seed will always produce the same random string.
 func Random() cel.EnvOption {
 	return cel.Lib(&randomLibrary{})
 }
@@ -53,19 +69,6 @@ func (l *randomLibrary) ProgramOptions() []cel.ProgramOption {
 	return nil
 }
 
-// generateDeterministicString returns a CEL function that generates deterministic random strings
-// based on a seed.
-//
-// The function takes two arguments:
-// - length: an integer specifying the length of the random string to generate
-// - seed: a string used as the seed for the random string generation
-//
-// Example usage:
-//
-//	random.string(10, schema.spec.name)
-//
-// This will generate a random string of length 10 using the seed schema.spec.name.
-// The same length and seed will always produce the same random string.
 func generateDeterministicString(length ref.Val, seed ref.Val) ref.Val {
 	// Validate length is an integer
 	if length.Type() != types.IntType {
@@ -85,17 +88,17 @@ func generateDeterministicString(length ref.Val, seed ref.Val) ref.Val {
 	// Validate length
 	lengthInt, ok := length.(types.Int)
 	if !ok {
-		return types.NewErr("random.string length must be an integer")
+		return types.NewErr("random.seededString length must be an integer")
 	}
 	n := int(lengthInt.Value().(int64))
 	if n <= 0 {
-		return types.NewErr("random.string length must be positive")
+		return types.NewErr("random.seededString length must be positive")
 	}
 
 	// Validate seed
 	seedStr, ok := seed.(types.String)
 	if !ok {
-		return types.NewErr("random.string seed must be a string")
+		return types.NewErr("random.seededString seed must be a string")
 	}
 
 	// Generate hash from seed
