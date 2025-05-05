@@ -1,0 +1,45 @@
+apiVersion: kro.run/v1alpha1
+kind: ResourceGraphDefinition
+metadata:
+  name: envdeployment.kro.run
+spec:
+  schema:
+    apiVersion: v1alpha1
+    kind: EnvDeployment
+    spec:
+      env: string | default="value"
+    status:
+      deploymentConditions: ${deployment.status.conditions}
+      availableReplicas: ${deployment.status.availableReplicas * 10}
+  resources:
+    - id: configmap
+      template:
+        apiVersion: v1
+        kind: ConfigMap
+        metadata:
+          name: ${schema.metadata.name}
+        data:
+          env: ${schema.spec.value}
+    - id: deployment
+      template:
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: ${schema.metadata.name}
+          labels:
+            env: ${configmap.data["env"]}
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: deployment
+          template:
+            metadata:
+              labels:
+                app: deployment
+            spec:
+              containers:
+                - name: ${schema.metadata.name}-deployment
+                  image: nginx
+                  ports:
+                    - containerPort: 80
