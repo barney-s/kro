@@ -58,6 +58,9 @@ func NewResourceGraphDefinitionRuntime(
 	// make sure to copy the variables and the dependencies, to avoid
 	// modifying the original resource.
 	for id, resource := range resources {
+		if yes, _ := r.ReadyToProcessResource(id); !yes {
+			continue
+		}
 		// Process the resource variables.
 		for _, variable := range resource.GetVariables() {
 			for _, expr := range variable.Expressions {
@@ -426,6 +429,10 @@ func (rt *ResourceGraphDefinitionRuntime) evaluateInstanceStatuses() error {
 // evaluateResourceExpressions processes all expressions associated with a
 // specific resource.
 func (rt *ResourceGraphDefinitionRuntime) evaluateResourceExpressions(resource string) error {
+	yes, _ := rt.ReadyToProcessResource(resource)
+	if !yes {
+		return nil
+	}
 	exprValues := make(map[string]interface{})
 	for _, v := range rt.expressionsCache {
 		if v.Resolved {
@@ -519,9 +526,9 @@ func (rt *ResourceGraphDefinitionRuntime) areDependenciesIgnored(resourceID stri
 	return false
 }
 
-// WantToCreateResource returns true if all the condition expressions return true
+// ReadyToProcessResource returns true if all the condition expressions return true
 // if not it will add itself to the ignored resources
-func (rt *ResourceGraphDefinitionRuntime) WantToCreateResource(resourceID string) (bool, error) {
+func (rt *ResourceGraphDefinitionRuntime) ReadyToProcessResource(resourceID string) (bool, error) {
 	if rt.areDependenciesIgnored(resourceID) {
 		return false, nil
 	}
