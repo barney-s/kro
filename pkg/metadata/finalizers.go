@@ -19,6 +19,7 @@ import (
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/kro-run/kro/api/v1alpha1"
 )
@@ -54,10 +55,8 @@ func SetInstanceFinalizerUnstructured(obj *unstructured.Unstructured) error {
 
 // RemoveInstanceFinalizerUnstructured removes an instance-specific finalizer from an unstructured object.
 func RemoveInstanceFinalizerUnstructured(obj *unstructured.Unstructured) error {
-	finalizers := obj.GetFinalizers()
-	if containsString(finalizers, kroFinalizer) {
-		finalizers = removeString(finalizers, kroFinalizer)
-		obj.SetFinalizers(finalizers)
+	if controllerutil.ContainsFinalizer(obj, kroFinalizer) {
+		controllerutil.RemoveFinalizer(obj, kroFinalizer)
 	}
 	return nil
 }

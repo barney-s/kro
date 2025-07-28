@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/client/clientset/clientset/typed/apiextensions/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -31,6 +32,8 @@ type Set struct {
 	kubernetes      *kubernetes.Clientset
 	dynamic         *dynamic.DynamicClient
 	apiExtensionsV1 *apiextensionsv1.ApiextensionsV1Client
+	// restMapper is a REST mapper for the Kubernetes API server
+	restMapper meta.RESTMapper
 }
 
 // Config holds configuration for client creation
@@ -124,6 +127,11 @@ func (c *Set) RESTConfig() *rest.Config {
 	return rest.CopyConfig(c.config)
 }
 
+// RESTMapper returns the REST mapper
+func (c *Set) RESTMapper() meta.RESTMapper {
+	return c.restMapper
+}
+
 // CRD returns a new CRDWrapper instance
 func (c *Set) CRD(cfg CRDWrapperConfig) *CRDWrapper {
 	if cfg.Client == nil {
@@ -139,4 +147,9 @@ func (c *Set) WithImpersonation(user string) (*Set, error) {
 		RestConfig:      c.config,
 		ImpersonateUser: user,
 	})
+}
+
+// SetRESTMapper sets the REST mapper for the client
+func (c *Set) SetRESTMapper(restMapper meta.RESTMapper) {
+	c.restMapper = restMapper
 }

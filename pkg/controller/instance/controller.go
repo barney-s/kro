@@ -78,8 +78,6 @@ type Controller struct {
 	gvr schema.GroupVersionResource
 	// client holds the dynamic client to use for interacting with the Kubernetes API.
 	clientSet *kroclient.Set
-	// restMapper is a REST mapper for the Kubernetes API server
-	restMapper meta.RESTMapper
 	// rgd is a read-only reference to the Graph that the controller is
 	// managing instances for.
 	// TODO: use a read-only interface for the ResourceGraphDefinition
@@ -113,7 +111,6 @@ func NewController(
 		log:                    log,
 		gvr:                    gvr,
 		clientSet:              clientSet,
-		restMapper:             restMapper,
 		rgd:                    rgd,
 		instanceLabeler:        instanceLabeler,
 		sourceLabeler:          sourceLabeler,
@@ -164,7 +161,7 @@ func (c *Controller) Reconcile(ctx context.Context, req ctrl.Request) error {
 		log:                         log,
 		gvr:                         c.gvr,
 		client:                      executionClient,
-		restMapper:                  c.restMapper,
+		restMapper:                  c.clientSet.RESTMapper(),
 		runtime:                     rgRuntime,
 		instanceLabeler:             c.sourceLabeler,
 		instanceSubResourcesLabeler: instanceSubResourcesLabeler,
