@@ -1,0 +1,24 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Awesome go-echarts</title>
+    <script src="https://go-echarts.github.io/go-echarts-assets/assets/echarts.min.js"></script>
+</head>
+
+<body><div class="container">
+    <div class="item" id="qPmBZMAgLRUV" style="width:70%;height:90vh;"></div>
+</div><script type="text/javascript">
+    "use strict";
+    let goecharts_qPmBZMAgLRUV = echarts.init(document.getElementById('qPmBZMAgLRUV'), "white", { renderer: "canvas" });
+    let option_qPmBZMAgLRUV = {"color":["#5470c6","#91cc75","#fac858","#ee6666","#73c0de","#3ba272","#fc8452","#9a60b4","#ea7ccc"],"legend":{"show":false},"series":[{"name":"resource","type":"graph","links":[{"source":"deployment\n(1)","target":"service\n(2)","lineStyle":{"color":"#000"}},{"source":"deployment\n(1)","target":"ingress\n(3)","lineStyle":{"color":"#000"}},{"source":"service\n(2)","target":"ingress\n(3)","lineStyle":{"color":"#000"}}],"layout":"force","force":{"repulsion":5000},"categories":null,"roam":true,"edgeSymbol":"arrow","edgeSymbolSize":[0,7],"edgeLabel":null,"data":[{"name":"deployment\n(1)","symbolSize":40,"itemStyle":{"color":"#269103","borderColor":"#333","borderWidth":1}},{"name":"service\n(2)","symbolSize":40,"itemStyle":{"color":"#269103","borderColor":"#333","borderWidth":1}},{"name":"ingress\n(3)","symbolSize":40,"itemStyle":{"color":"#269103","borderColor":"#333","borderWidth":1}}]}],"title":{"text":"Resource Graph: webapp.kro.run","textStyle":{"fontWeight":"bold","fontSize":18},"subtext":"Topological Order: [deployment service ingress]","subtextStyle":{"fontSize":14}},"toolbox":{},"tooltip":{}}
+
+    goecharts_qPmBZMAgLRUV.setOption(option_qPmBZMAgLRUV);
+</script>
+<style>
+    .container {margin-top:30px; display: flex;justify-content: center;align-items: center;}
+    .item {margin: auto;}
+</style>
+</body>
+</html>
