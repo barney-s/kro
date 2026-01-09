@@ -16,7 +16,11 @@ package generate
 
 import (
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
@@ -25,6 +29,16 @@ import (
 
 	"github.com/kubernetes-sigs/kro/api/v1alpha1"
 )
+
+var (
+	outputFile  string
+	openBrowser bool
+)
+
+func init() {
+	generateDiagramCmd.Flags().StringVar(&outputFile, "output", "", "Output file path (optional)")
+	generateDiagramCmd.Flags().BoolVar(&openBrowser, "open", false, "Open the generated diagram in the browser")
+}
 
 var generateDiagramCmd = &cobra.Command{
 	Use:   "diagram",
@@ -46,15 +60,43 @@ var generateDiagramCmd = &cobra.Command{
 			return fmt.Errorf("failed to unmarshal ResourceGraphDefinition: %w", err)
 		}
 
-		if err = generateDiagram(&rgd); err != nil {
+		// Handle output file logic
+		finalOutput := outputFile
+		if openBrowser && finalOutput == "" {
+			// Create a temp file if opening in browser but no output file specified
+			f, err := os.CreateTemp("", "kro-diagram-*.html")
+			if err != nil {
+				return fmt.Errorf("failed to create temp file: %w", err)
+			}
+			finalOutput = f.Name()
+			f.Close() // Close it, generateDiagram will write to it
+		}
+
+		if err = generateDiagram(&rgd, finalOutput); err != nil {
 			return fmt.Errorf("failed to generate diagram: %w", err)
+		}
+
+		if openBrowser {
+			// Ensure we have an absolute path for the browser
+			absPath, err := filepath.Abs(finalOutput)
+			if err != nil {
+				return fmt.Errorf("failed to resolve absolute path: %w", err)
+			}
+			// Prepend protocol for browser
+			url := "file://" + absPath
+			fmt.Printf("Opening diagram: %s\n", url)
+			if err := openInBrowser(url); err != nil {
+				return fmt.Errorf("failed to open browser: %w", err)
+			}
+		} else if finalOutput != "" {
+			fmt.Printf("Diagram generated at: %s\n", finalOutput)
 		}
 
 		return nil
 	},
 }
 
-func generateDiagram(rgd *v1alpha1.ResourceGraphDefinition) error {
+func generateDiagram(rgd *v1alpha1.ResourceGraphDefinition, outputFile string) error {
 	rgdGraph, err := createGraphBuilder(rgd)
 	if err != nil {
 		return fmt.Errorf("failed to setup rgd graph: %w", err)
@@ -138,5 +180,32 @@ func generateDiagram(rgd *v1alpha1.ResourceGraphDefinition) error {
 		),
 	)
 
-	return graph.Render(os.Stdout)
+	var w io.Writer = os.Stdout
+	if outputFile != "" {
+		f, err := os.Create(outputFile)
+		if err != nil {
+			return fmt.Errorf("failed to create output file: %w", err)
+		}
+		defer f.Close()
+		w = f
+	}
+
+	return graph.Render(w)
+}
+
+func openInBrowser(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		cmd = "xdg-open"
+	}
+	args = append(args, url)
+	return exec.Command(cmd, args...).Start()
 }
